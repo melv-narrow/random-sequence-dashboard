@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { connectToDatabase } from '@/lib/mongodb'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/app/api/auth/[...nextauth]/auth.config'
 
 interface SequenceQuery {
   userId: string
@@ -15,13 +15,8 @@ interface SequenceQuery {
 export async function GET(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    console.log('Session data:', {
-      email: session?.user?.email,
-      name: session?.user?.name
-    })
 
     if (!session?.user?.email) {
-      console.log('No authenticated user found')
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
@@ -32,13 +27,6 @@ export async function GET(request: Request) {
 
     const { db } = await connectToDatabase()
     
-    // Basic query to test if any documents exist for the user
-    const testQuery = { userId: session.user.email }
-    const testCount = await db.collection('sequences').countDocuments(testQuery)
-    console.log('Basic query count:', testCount)
-    console.log('Test query:', JSON.stringify(testQuery, null, 2))
-
-    // Your existing query building code
     const query: SequenceQuery = {
       userId: session.user.email
     }
@@ -57,18 +45,7 @@ export async function GET(request: Request) {
       query['metadata.sequenceLength'] = parseInt(sequenceLength)
     }
 
-    console.log('Final MongoDB Query:', JSON.stringify(query, null, 2))
-
-    // Test a direct find operation
-    const sampleDocs = await db
-      .collection('sequences')
-      .find({})
-      .limit(1)
-      .toArray()
-    console.log('Sample document structure:', JSON.stringify(sampleDocs[0], null, 2))
-
     const total = await db.collection('sequences').countDocuments(query)
-    console.log('Total documents found:', total)
 
     const sequences = await db
       .collection('sequences')
@@ -77,8 +54,6 @@ export async function GET(request: Request) {
       .skip(skip)
       .limit(limit)
       .toArray()
-
-    console.log('Sequences found:', sequences.length)
 
     return NextResponse.json({
       sequences,

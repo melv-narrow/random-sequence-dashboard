@@ -49,7 +49,7 @@ export default function HistoryPage() {
     current: 1,
     pageSize: 10
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -67,6 +67,7 @@ export default function HistoryPage() {
   const [errorMessage, setErrorMessage] = useState('')
 
   const fetchRef = useRef(false)
+  const isMounted = useRef(false)
 
   const getSortIcon = (field: SortField) => {
     if (sortState.field !== field) {
@@ -110,6 +111,7 @@ export default function HistoryPage() {
   }
 
   const fetchSequences = useCallback(async () => {
+    if (!isMounted.current) return
     setLoading(true)
     try {
       const params = new URLSearchParams({
@@ -158,17 +160,20 @@ export default function HistoryPage() {
     } finally {
       setLoading(false)
     }
-  }, [pagination, filters, addToast])
+  }, [pagination.current, filters, addToast])
 
   useEffect(() => {
-    if (fetchRef.current) return
+    isMounted.current = true
     fetchRef.current = true
-    
     fetchSequences()
-  }, [fetchSequences])
+    
+    return () => {
+      isMounted.current = false
+    }
+  }, [])
 
   useEffect(() => {
-    if (!fetchRef.current) return
+    if (!isMounted.current || !fetchRef.current) return
 
     const debounceTimer = setTimeout(() => {
       fetchSequences()
@@ -176,11 +181,10 @@ export default function HistoryPage() {
 
     return () => clearTimeout(debounceTimer)
   }, [
-    fetchSequences,
     filters.dateFrom,
     filters.dateTo,
     filters.sequenceLength,
-    pagination
+    pagination.current
   ])
 
   const handlePageChange = (page: number) => {
