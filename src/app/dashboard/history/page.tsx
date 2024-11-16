@@ -165,7 +165,7 @@ export default function HistoryPage() {
     fetchRef.current = true
     
     fetchSequences()
-  }, [])
+  }, [fetchSequences])
 
   useEffect(() => {
     if (!fetchRef.current) return
@@ -176,10 +176,11 @@ export default function HistoryPage() {
 
     return () => clearTimeout(debounceTimer)
   }, [
-    pagination.current,
+    fetchSequences,
     filters.dateFrom,
     filters.dateTo,
-    filters.sequenceLength
+    filters.sequenceLength,
+    pagination
   ])
 
   const handlePageChange = (page: number) => {

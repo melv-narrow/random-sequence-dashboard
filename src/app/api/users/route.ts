@@ -18,7 +18,8 @@ export async function GET(_request: Request) {
     }
 
     return NextResponse.json(user)
-  } catch (_error) {
+  } catch (error) {
+    console.error('GET user error:', error)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
@@ -54,7 +55,8 @@ export async function POST(_request: Request) {
 
     await db.collection('users').insertOne(user)
     return NextResponse.json(user)
-  } catch (_error) {
+  } catch (error) {
+    console.error('POST user error:', error)
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 } 
