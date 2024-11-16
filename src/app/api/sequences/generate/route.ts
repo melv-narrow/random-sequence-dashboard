@@ -6,17 +6,12 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions)
-    console.log('Generate - Session data:', {
-      email: session?.user?.email,
-      name: session?.user?.name
-    })
 
     if (!session?.user?.email) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
     const { length = 6, count = 1 } = await request.json()
-    console.log('Generating sequences with params:', { length, count })
 
     const { db } = await connectToDatabase()
     const sequences: number[][] = []
@@ -34,12 +29,8 @@ export async function POST(request: Request) {
           totalSequences: count
         }
       }
-
-      console.log('Saving sequence:', sequenceDoc)
       
       const result = await db.collection('sequences').insertOne(sequenceDoc)
-      console.log('Sequence saved with ID:', result.insertedId)
-      
       sequences.push(sequence)
     }
 
