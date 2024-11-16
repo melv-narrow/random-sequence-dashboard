@@ -1,0 +1,36 @@
+# This is a CODEOWNERS file for random-sequence-dashboard
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+# @melv-narrow will be requested for review when someone 
+# opens a pull request.
+*       @melv-narrow
+
+# App routes and API endpoints
+/src/app/**                  @melv-narrow
+/src/app/api/**             @melv-narrow
+
+# Core components
+/src/components/**          @melv-narrow
+/src/components/lottery/**  @melv-narrow
+/src/components/ui/**       @melv-narrow
+
+# Business logic and utilities
+/src/lib/**                 @melv-narrow
+/src/utils/**               @melv-narrow
+/src/hooks/**               @melv-narrow
+
+# State management
+/src/lib/stores/**          @melv-narrow
+
+# Types and constants
+/src/types/**               @melv-narrow
+/src/constants/**           @melv-narrow
+
+# Configuration files
+/*.config.js                @melv-narrow
+/*.config.ts                @melv-narrow
+/package.json              @melv-narrow
+/package-lock.json         @melv-narrow
+/.env*                     @melv-narrow
