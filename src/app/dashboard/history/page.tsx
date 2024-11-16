@@ -66,11 +66,6 @@ export default function HistoryPage() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const fetchRef = useRef(false)
-  const isMounted = useRef(false)
-  const currentPage = useRef(1)
-  const debounceTimerRef = useRef<NodeJS.Timeout>()
-
   const getSortIcon = (field: SortField) => {
     if (sortState.field !== field) {
       return <ChevronsUpDown className="h-4 w-4 text-gray-400" />
@@ -111,6 +106,10 @@ export default function HistoryPage() {
       }
     })
   }
+
+  const fetchRef = useRef(false)
+  const isMounted = useRef(false)
+  const currentPage = useRef(1)
 
   const fetchSequences = useCallback(async () => {
     if (!isMounted.current) return

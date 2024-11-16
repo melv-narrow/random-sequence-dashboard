@@ -96,3 +96,8 @@ export interface SequenceAnalysis {
 }
 
 export type Theme = 'light' | 'dark'
+
+export interface GenerateSequenceParams {
+  numberOfSequences: number
+  numbersPerSequence: number
+}

@@ -1,3 +1,17 @@
+/**
+ * API Route for sequence history
+ * 
+ * Note: This route intentionally uses dynamic features (headers, sessions, DB queries)
+ * which will trigger a Next.js build warning about static generation.
+ * This is expected and correct for our use case because:
+ * 1. We need authentication via getServerSession
+ * 2. We fetch personalized data per user
+ * 3. We handle dynamic database queries
+ * 
+ * The warning "Dynamic server usage: Page couldn't be rendered statically"
+ * can be safely ignored as this route must be dynamic.
+ */
+
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { connectToDatabase } from '@/lib/mongodb'
@@ -14,12 +28,14 @@ interface SequenceQuery {
 
 export async function GET(request: Request) {
   try {
+    // Authentication check - requires dynamic execution
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.email) {
       return new NextResponse('Unauthorized', { status: 401 })
     }
 
+    // Parse dynamic query parameters
     const { searchParams } = new URL(request.url)
     const page = parseInt(searchParams.get('page') || '1')
     const limit = 10
@@ -27,6 +43,7 @@ export async function GET(request: Request) {
 
     const { db } = await connectToDatabase()
     
+    // Dynamic query based on user session
     const query: SequenceQuery = {
       userId: session.user.email
     }

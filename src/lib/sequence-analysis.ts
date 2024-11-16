@@ -312,32 +312,19 @@ export const analyzeSequence = async (
   const historicalTrends = calculateHistoricalTrends(frequencies)
   const performanceMetrics = calculatePerformanceMetrics(sequence, pattern, frequencies)
 
+  // Generate recommendations based on analysis
   const recommendations = [
-    frequencies.some(f => f.status === 'hot') 
-      ? 'Your sequence includes some frequently drawn numbers'
-      : 'Consider including some more frequently drawn numbers',
-    pattern.evenOdd.even === pattern.evenOdd.odd
-      ? 'Good even/odd number distribution'
-      : 'Consider balancing even and odd numbers',
-    pattern.highLow.high === pattern.highLow.low
-      ? 'Good high/low number distribution'
-      : 'Consider balancing high and low numbers',
-    pattern.consecutive > 0
-      ? 'Be aware of consecutive numbers in your sequence'
-      : 'Good spacing between numbers',
-    ...patternStrength
-      .map(ps => ps.score < 50 ? `Consider improving ${ps.type.toLowerCase()} distribution` : null)
-      .filter(Boolean),
-    winProbability.overall > 70 
-      ? 'Current combination shows strong potential' 
-      : 'Consider adjusting number selection strategy',
-    ...historicalTrends
-      .filter(trend => trend.performance === 'increasing')
-      .map(trend => `Numbers showing positive trend in ${trend.period.toLowerCase()}`),
-    ...performanceMetrics
-      .filter(metric => metric.trend === 'down')
-      .map(metric => `Consider improving ${metric.metric.toLowerCase()}`)
-  ].filter(Boolean)
+    pattern.consecutive > 2 ? 'Consider reducing consecutive numbers' : null,
+    pattern.evenOdd.even > 4 ? 'Consider adding more odd numbers for balance' : null,
+    pattern.evenOdd.odd > 4 ? 'Consider adding more even numbers for balance' : null,
+    pattern.highLow.high > 4 ? 'Consider including more low numbers' : null,
+    pattern.highLow.low > 4 ? 'Consider including more high numbers' : null,
+    pattern.sum < 100 ? 'Consider numbers that would increase the sum' : null,
+    pattern.sum > 200 ? 'Consider numbers that would decrease the sum' : null,
+    pattern.average < 20 ? 'Consider including higher numbers' : null,
+    pattern.average > 30 ? 'Consider including lower numbers' : null,
+    frequencies.some(f => f.status === 'hot') ? 'Consider mixing hot and cold numbers' : null
+  ].filter((rec): rec is string => rec !== null)
 
   return {
     frequencies,

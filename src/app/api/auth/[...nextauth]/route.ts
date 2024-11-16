@@ -3,5 +3,11 @@ import { authOptions } from './auth.config'
 
 const handler = NextAuth(authOptions)
 
-export const GET = handler.GET
-export const POST = handler.POST
+// Export all HTTP methods that NextAuth can handle
+export const GET = handler
+export const POST = handler
+export const PUT = handler
+export const DELETE = handler
+export const PATCH = handler
+export const HEAD = handler
+export const OPTIONS = handler
