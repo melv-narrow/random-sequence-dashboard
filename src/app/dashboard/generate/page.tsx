@@ -19,6 +19,7 @@ export default function GeneratePage() {
   const [selectedSequence, setSelectedSequence] = useState<number[]>([])
   const { sequences, addSequence, clearSequences } = useSequencesStore()
   const { defaultSequenceLength, defaultSequenceCount } = usePreferencesStore()
+  const [newSequenceIds, setNewSequenceIds] = useState<Set<string>>(new Set())
   const [formData, setFormData] = useState({
     numbersPerSequence: defaultSequenceLength,
     numberOfSequences: defaultSequenceCount
@@ -65,9 +66,12 @@ export default function GeneratePage() {
       }
 
       const data = await response.json()
+      const newIds = new Set<string>()
+      
       data.sequences.forEach((numbers: number[], index: number) => {
+        const sequenceId = crypto.randomUUID()
         const sequence: Sequence = {
-          _id: crypto.randomUUID(),
+          _id: sequenceId,
           userId: '',
           numbers,
           createdAt: new Date().toISOString(),
@@ -76,12 +80,16 @@ export default function GeneratePage() {
             totalSequences: formData.numberOfSequences
           }
         }
+        newIds.add(sequenceId)
         addSequence(sequence)
       })
 
+      setNewSequenceIds(newIds)
+      setTimeout(() => {
+        setNewSequenceIds(new Set())
+      }, 3000)  // Clear highlight after 3 seconds
+
       addToast('Sequences generated successfully')
-      setSelectedSequence(data.sequences[0])
-      setAnalysisOpen(true)
     } catch (error) {
       console.error('Error generating sequences:', error)
       addToast('Failed to generate sequences', 'error')
@@ -192,10 +200,14 @@ export default function GeneratePage() {
           </div>
 
           <div className="space-y-4">
-            {sequences.map((seq, index) => (
+            {[...sequences].reverse().map((seq, index) => (
               <div
-                key={index}
-                className="flex items-center justify-between rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                key={seq._id}
+                className={`flex items-center justify-between rounded-lg border p-4 transition-all duration-500 ${
+                  newSequenceIds.has(seq._id)
+                    ? 'border-green-500 bg-green-50 dark:border-green-500/50 dark:bg-green-900/20'
+                    : 'border-gray-200 dark:border-gray-700'
+                }`}
               >
                 <SequenceDisplay sequence={seq.numbers} />
                 <button
