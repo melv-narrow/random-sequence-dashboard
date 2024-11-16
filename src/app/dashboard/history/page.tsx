@@ -68,6 +68,8 @@ export default function HistoryPage() {
 
   const fetchRef = useRef(false)
   const isMounted = useRef(false)
+  const currentPage = useRef(1)
+  const debounceTimerRef = useRef<NodeJS.Timeout>()
 
   const getSortIcon = (field: SortField) => {
     if (sortState.field !== field) {
@@ -115,13 +117,11 @@ export default function HistoryPage() {
     setLoading(true)
     try {
       const params = new URLSearchParams({
-        page: pagination.current.toString(),
+        page: currentPage.current.toString(),
         dateFrom: filters.dateFrom || '',
         dateTo: filters.dateTo || '',
         sequenceLength: filters.sequenceLength?.toString() || ''
       })
-
-      console.log('Fetching sequences with params:', params.toString())
       
       const response = await fetch(`/api/sequences/history?${params}`)
       const contentType = response.headers.get('content-type')
@@ -134,18 +134,17 @@ export default function HistoryPage() {
       }
 
       const data = await response.json()
-      console.log('Received data:', data)
 
       if (!data.sequences || !Array.isArray(data.sequences)) {
         throw new Error('Invalid response format')
       }
 
       setSequences(data.sequences)
+      // Update pagination info without changing current page
       setPagination(prev => ({
         ...prev,
         total: data.pagination.total,
         pages: data.pagination.pages,
-        current: data.pagination.current,
         pageSize: data.pagination.pageSize
       }))
     } catch (error) {
@@ -160,32 +159,38 @@ export default function HistoryPage() {
     } finally {
       setLoading(false)
     }
-  }, [pagination.current, filters, addToast])
+  }, [filters, addToast])
 
+  // Initial fetch
   useEffect(() => {
     isMounted.current = true
     fetchRef.current = true
     fetchSequences()
-    
     return () => {
       isMounted.current = false
     }
   }, [])
 
+  // Handle pagination changes
   useEffect(() => {
-    if (!isMounted.current || !fetchRef.current) return
-
-    const debounceTimer = setTimeout(() => {
+    if (!fetchRef.current) return
+    currentPage.current = pagination.current
+    const timer = setTimeout(() => {
       fetchSequences()
     }, 300)
+    return () => clearTimeout(timer)
+  }, [pagination.current])
 
-    return () => clearTimeout(debounceTimer)
-  }, [
-    filters.dateFrom,
-    filters.dateTo,
-    filters.sequenceLength,
-    pagination.current
-  ])
+  // Handle filter changes
+  useEffect(() => {
+    if (!fetchRef.current) return
+    currentPage.current = 1 // Reset to first page on filter change
+    setPagination(prev => ({ ...prev, current: 1 }))
+    const timer = setTimeout(() => {
+      fetchSequences()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [filters.dateFrom, filters.dateTo, filters.sequenceLength])
 
   const handlePageChange = (page: number) => {
     setPagination(prev => ({ ...prev, current: page }))
