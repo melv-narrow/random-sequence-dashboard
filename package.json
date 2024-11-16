@@ -1,0 +1,50 @@
+{
+  "name": "random-sequence-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "clean": "rimraf .next"
+  },
+  "dependencies": {
+    "@auth/mongodb-adapter": "^3.7.3",
+    "@prisma/client": "^5.22.0",
+    "@types/lodash.debounce": "^4.0.9",
+    "chart.js": "^4.4.6",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lodash.debounce": "^4.0.8",
+    "lucide-react": "^0.456.0",
+    "mongodb": "^6.10.0",
+    "next": "14.1.4",
+    "next-auth": "^4.24.10",
+    "react": "^18",
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18",
+    "recharts": "^2.13.3",
+    "tailwind-merge": "^2.5.4",
+    "xlsx": "^0.18.5",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "@shadcn/ui": "^0.0.4",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.1.4",
+    "eslint-config-prettier": "^9.1.0",
+    "postcss": "^8",
+    "prettier": "^3.3.3",
+    "rimraf": "^6.0.1",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5"
+  }
+}
