@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { connectToDatabase } from '@/lib/mongodb'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
@@ -18,12 +18,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json(user)
-  } catch (error) {
+  } catch (_error) {
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(_request: Request) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
     await db.collection('users').insertOne(user)
     return NextResponse.json(user)
-  } catch (error) {
+  } catch (_error) {
     return new NextResponse('Internal Server Error', { status: 500 })
   }
 } 

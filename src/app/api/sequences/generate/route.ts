@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         }
       }
       
-      const result = await db.collection('sequences').insertOne(sequenceDoc)
+      const _result = await db.collection('sequences').insertOne(sequenceDoc)
       sequences.push(sequence)
     }
 

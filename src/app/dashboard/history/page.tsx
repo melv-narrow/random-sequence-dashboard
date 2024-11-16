@@ -66,7 +66,6 @@ export default function HistoryPage() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
 
-  const isMounted = useRef(false)
   const fetchRef = useRef(false)
 
   const getSortIcon = (field: SortField) => {
@@ -159,7 +158,7 @@ export default function HistoryPage() {
     } finally {
       setLoading(false)
     }
-  }, [pagination.current, filters, addToast])
+  }, [pagination, filters, addToast])
 
   useEffect(() => {
     if (fetchRef.current) return
@@ -187,13 +186,14 @@ export default function HistoryPage() {
     setPagination(prev => ({ ...prev, current: page }))
   }
 
-  const handleFilterReset = () => {
+  const resetFilters = () => {
     setFilters({
       dateFrom: '',
       dateTo: '',
       sequenceLength: ''
     })
     setPagination(prev => ({ ...prev, current: 1 }))
+    addToast('Filters have been reset')
   }
 
   const handleDelete = async (sequenceId: string) => {
@@ -442,16 +442,6 @@ export default function HistoryPage() {
       // Reset the date if validation fails
       setFilters(prev => ({ ...prev, dateTo: '' }))
     }
-  }
-
-  const resetFilters = () => {
-    const newFilters = {
-      dateFrom: '',
-      dateTo: '',
-      sequenceLength: ''
-    }
-    setFilters(newFilters)
-    addToast('Filters have been reset')
   }
 
   return (

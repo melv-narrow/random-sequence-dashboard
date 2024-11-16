@@ -32,19 +32,6 @@ export default function GeneratePage() {
     })
   }, [defaultSequenceLength, defaultSequenceCount])
 
-  const generateSequence = (length: number) => {
-    const numbers = Array.from({ length: 50 }, (_, i) => i + 1)
-    const sequence = []
-    
-    for (let i = 0; i < length; i++) {
-      const index = Math.floor(Math.random() * numbers.length)
-      sequence.push(numbers[index])
-      numbers.splice(index, 1)
-    }
-    
-    return sequence.sort((a, b) => a - b)
-  }
-
   const handleGenerate = async () => {
     if (!formData.numbersPerSequence || !formData.numberOfSequences) return
 
@@ -68,7 +55,7 @@ export default function GeneratePage() {
       const data = await response.json()
       const newIds = new Set<string>()
       
-      data.sequences.forEach((numbers: number[], index: number) => {
+      data.sequences.forEach((numbers: number[], _index: number) => {
         const sequenceId = crypto.randomUUID()
         const sequence: Sequence = {
           _id: sequenceId,
@@ -200,7 +187,7 @@ export default function GeneratePage() {
           </div>
 
           <div className="space-y-4">
-            {[...sequences].reverse().map((seq, index) => (
+            {[...sequences].reverse().map((seq, _index) => (
               <div
                 key={seq._id}
                 className={`flex items-center justify-between rounded-lg border p-4 transition-all duration-500 ${
