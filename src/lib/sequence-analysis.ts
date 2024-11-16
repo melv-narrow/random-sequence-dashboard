@@ -2,6 +2,7 @@ interface Frequency {
   number: number
   count: number
   status: 'hot' | 'warm' | 'cold'
+  lastDrawn?: string
 }
 
 interface Pattern {
