@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { PasswordStrengthIndicator } from './PasswordStrengthIndicator'
 
 interface AuthFormProps {
   mode: 'signin' | 'signup'
@@ -162,6 +163,9 @@ export function AuthForm({ mode }: AuthFormProps) {
             onChange={handleChange}
             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
           />
+          {mode === 'signup' && (
+            <PasswordStrengthIndicator password={formData.password} />
+          )}
         </div>
 
         {mode === 'signup' && (
