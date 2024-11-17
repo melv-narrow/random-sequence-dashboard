@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { connectToDatabase } from '@/lib/mongodb'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/app/api/auth/[...nextauth]/auth.config'
 
 export async function POST(request: Request) {
   try {
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
         }
       }
       
-      const result = await db.collection('sequences').insertOne(sequenceDoc)
+      const _result = await db.collection('sequences').insertOne(sequenceDoc)
       sequences.push(sequence)
     }
 

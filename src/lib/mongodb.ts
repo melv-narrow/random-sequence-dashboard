@@ -34,7 +34,7 @@ export default clientPromise
 export async function connectToDatabase() {
   try {
     const client = await clientPromise
-    const db = client.db('random-sequences')
+    const db = client.db() // Use the database from the connection string
     return { client, db }
   } catch (error) {
     console.error('Failed to connect to database:', error)

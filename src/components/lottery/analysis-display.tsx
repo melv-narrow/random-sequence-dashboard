@@ -8,7 +8,8 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Cell
 } from 'recharts'
 import type { SequenceAnalysis } from '@/types'
 import { analyzeSequence } from '@/lib/sequence-analysis'
@@ -59,14 +60,14 @@ export function AnalysisDisplay({ sequence, lotteryHistory }: AnalysisDisplayPro
   }
 
   const getBarColor = (index: number): string => {
-    const colors = {
-      0: '#3b82f6', // blue
-      1: '#22c55e', // green
-      2: '#a855f7', // purple
-      3: '#f97316', // orange
-      4: '#94a3b8'  // gray
-    }
-    return colors[index % 5] || colors[4]
+    const colors = [
+      '#3b82f6', // blue
+      '#22c55e', // green
+      '#a855f7', // purple
+      '#f97316', // orange
+      '#94a3b8'  // gray
+    ]
+    return colors[index % colors.length] || colors[colors.length - 1]
   }
 
   return (
@@ -85,8 +86,15 @@ export function AnalysisDisplay({ sequence, lotteryHistory }: AnalysisDisplayPro
               <Tooltip />
               <Bar
                 dataKey="count"
-                fill={({ index }) => getBarColor(index || 0)}
-              />
+                fill="#3b82f6"
+                name="Frequency"
+                stroke="#2563eb"
+                radius={[4, 4, 0, 0]}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getBarColor(index)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -108,18 +116,18 @@ export function AnalysisDisplay({ sequence, lotteryHistory }: AnalysisDisplayPro
           </div>
           <div className="rounded-lg border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              Even/Odd Ratio
+              Even/Odd Distribution
             </div>
             <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-              {analysis.pattern.evenOdd}
+              {`${analysis.pattern.evenOdd.even}/${analysis.pattern.evenOdd.odd}`}
             </div>
           </div>
           <div className="rounded-lg border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              High/Low Ratio
+              High/Low Distribution
             </div>
             <div className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">
-              {analysis.pattern.highLow}
+              {`${analysis.pattern.highLow.high}/${analysis.pattern.highLow.low}`}
             </div>
           </div>
           <div className="rounded-lg border bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
@@ -139,23 +147,17 @@ export function AnalysisDisplay({ sequence, lotteryHistory }: AnalysisDisplayPro
           Recommendations
         </h3>
         <div className="space-y-2">
-          {analysis.recommendations.map((rec, index) => (
+          {analysis.recommendations.map((recommendation, index) => (
             <div
               key={index}
               className="rounded-lg border bg-white p-4 dark:border-gray-700 dark:bg-gray-800"
             >
               <div className="flex items-center gap-2">
                 <div
-                  className={`h-2 w-2 rounded-full ${
-                    rec.importance > 7
-                      ? 'bg-red-500'
-                      : rec.importance > 4
-                      ? 'bg-yellow-500'
-                      : 'bg-green-500'
-                  }`}
+                  className={`h-2 w-2 rounded-full bg-blue-500`}
                 />
                 <div className="text-sm text-gray-700 dark:text-gray-300">
-                  {rec.text}
+                  {recommendation}
                 </div>
               </div>
             </div>
@@ -180,7 +182,7 @@ export function AnalysisDisplay({ sequence, lotteryHistory }: AnalysisDisplayPro
                     {draw.date}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    {Math.round(draw.similarity * 100)}% similar
+                    {draw.matches} matching numbers
                   </div>
                 </div>
                 <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">

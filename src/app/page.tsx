@@ -1,8 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
+import { AuthForm } from '@/components/auth/AuthForm'
+import { AuthToggle } from '@/components/auth/AuthToggle'
 
 export default function SignInPage() {
+  const [mode, setMode] = useState<'signin' | 'signup'>('signin')
+
+  const toggleMode = () => {
+    setMode(mode === 'signin' ? 'signup' : 'signin')
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto flex min-h-screen items-center justify-center px-4 py-12">
@@ -17,8 +26,22 @@ export default function SignInPage() {
             </p>
           </div>
 
+          {/* Auth Form */}
+          <AuthForm mode={mode} />
+
           {/* Sign In Options */}
-          <div className="mt-8 space-y-4">
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-gradient-to-br from-blue-50 to-indigo-50 px-2 text-gray-500 dark:from-gray-900 dark:to-gray-800 dark:text-gray-400">
+                Or
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6">
             <button
               onClick={() => signIn('google', { callbackUrl: '/dashboard' })}
               className="flex w-full items-center justify-center gap-3 rounded-lg border bg-white px-4 py-3 text-gray-700 shadow-sm transition-colors hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
@@ -44,6 +67,9 @@ export default function SignInPage() {
               Continue with Google
             </button>
           </div>
+
+          {/* Auth Toggle */}
+          <AuthToggle mode={mode} onToggle={toggleMode} />
 
           {/* Features */}
           <div className="mt-12">

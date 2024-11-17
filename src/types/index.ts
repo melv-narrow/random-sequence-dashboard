@@ -44,24 +44,60 @@ export interface Toast {
 }
 
 export interface SequenceAnalysis {
-  frequencies: Array<{ number: number; count: number }>
+  frequencies: Array<{ 
+    number: number; 
+    count: number;
+    status?: 'hot' | 'warm' | 'cold';
+    lastDrawn?: string;
+  }>
   pattern: {
     consecutive: number
-    evenOdd: number
-    highLow: number
+    evenOdd: {
+      even: number
+      odd: number
+    }
+    highLow: {
+      high: number
+      low: number
+    }
     sum: number
     average: number
   }
-  winProbability: Array<{ factor: string; value: number }>
-  patternStrength: Array<{ pattern: string; value: number }>
-  historicalTrends: Array<{ trend: string; value: number }>
-  performanceMetrics: Array<{ metric: string; value: number }>
-  recommendations: Array<{ text: string; importance: number }>
+  winProbability: {
+    overall: number
+    factors: Array<{
+      name: string
+      impact: number
+      description: string
+    }>
+  }
+  patternStrength: Array<{
+    type: string
+    score: number
+    description: string
+  }>
+  historicalTrends: Array<{
+    period: string
+    frequency: number
+    performance: 'increasing' | 'decreasing' | 'stable'
+  }>
+  performanceMetrics: Array<{
+    metric: string
+    value: number
+    trend: 'up' | 'down' | 'neutral'
+    description?: string
+  }>
+  recommendations: string[]
   matchingDraws: Array<{
     date: string
     numbers: number[]
-    similarity: number
+    matches: number
   }>
 }
 
 export type Theme = 'light' | 'dark'
+
+export interface GenerateSequenceParams {
+  numberOfSequences: number
+  numbersPerSequence: number
+}

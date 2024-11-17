@@ -2,6 +2,7 @@ interface Frequency {
   number: number
   count: number
   status: 'hot' | 'warm' | 'cold'
+  lastDrawn?: string
 }
 
 interface Pattern {
@@ -242,13 +243,40 @@ const calculatePerformanceMetrics = (
   return metrics
 }
 
-export const analyzeSequence = async (sequence: number[]): Promise<SequenceAnalysis> => {
+export const analyzeSequence = async (
+  sequence: number[],
+  lotteryHistory?: Array<{ date: string; numbers: number[] }>
+): Promise<SequenceAnalysis> => {
   // Calculate frequencies
-  const frequencies: Frequency[] = sequence.map(num => ({
-    number: num,
-    count: Math.floor(Math.random() * 100),  // Simulated frequency
-    status: Math.random() > 0.6 ? 'hot' : Math.random() > 0.3 ? 'warm' : 'cold'
-  }))
+  const frequencies: Frequency[] = sequence.map(num => {
+    // Calculate actual frequency if lottery history is provided
+    let count = 0;
+    let lastDrawn: string | undefined;
+    
+    if (lotteryHistory) {
+      lotteryHistory.forEach(draw => {
+        if (draw.numbers.includes(num)) {
+          count++;
+          if (!lastDrawn || new Date(draw.date) > new Date(lastDrawn)) {
+            lastDrawn = draw.date;
+          }
+        }
+      });
+    } else {
+      count = Math.floor(Math.random() * 100); // Fallback to simulated frequency
+    }
+
+    const frequency = lotteryHistory 
+      ? (count / lotteryHistory.length) * 100 
+      : count;
+
+    return {
+      number: num,
+      count: frequency,
+      status: frequency > 40 ? 'hot' : frequency > 20 ? 'warm' : 'cold',
+      lastDrawn
+    };
+  });
 
   const pattern: Pattern = {
     consecutive: sequence.slice(1).reduce((count, num, i) => 
@@ -284,32 +312,19 @@ export const analyzeSequence = async (sequence: number[]): Promise<SequenceAnaly
   const historicalTrends = calculateHistoricalTrends(frequencies)
   const performanceMetrics = calculatePerformanceMetrics(sequence, pattern, frequencies)
 
+  // Generate recommendations based on analysis
   const recommendations = [
-    frequencies.some(f => f.status === 'hot') 
-      ? 'Your sequence includes some frequently drawn numbers'
-      : 'Consider including some more frequently drawn numbers',
-    pattern.evenOdd.even === pattern.evenOdd.odd
-      ? 'Good even/odd number distribution'
-      : 'Consider balancing even and odd numbers',
-    pattern.highLow.high === pattern.highLow.low
-      ? 'Good high/low number distribution'
-      : 'Consider balancing high and low numbers',
-    pattern.consecutive > 0
-      ? 'Be aware of consecutive numbers in your sequence'
-      : 'Good spacing between numbers',
-    ...patternStrength
-      .map(ps => ps.score < 50 ? `Consider improving ${ps.type.toLowerCase()} distribution` : null)
-      .filter(Boolean),
-    winProbability.overall > 70 
-      ? 'Current combination shows strong potential' 
-      : 'Consider adjusting number selection strategy',
-    ...historicalTrends
-      .filter(trend => trend.performance === 'increasing')
-      .map(trend => `Numbers showing positive trend in ${trend.period.toLowerCase()}`),
-    ...performanceMetrics
-      .filter(metric => metric.trend === 'down')
-      .map(metric => `Consider improving ${metric.metric.toLowerCase()}`)
-  ].filter(Boolean)
+    pattern.consecutive > 2 ? 'Consider reducing consecutive numbers' : null,
+    pattern.evenOdd.even > 4 ? 'Consider adding more odd numbers for balance' : null,
+    pattern.evenOdd.odd > 4 ? 'Consider adding more even numbers for balance' : null,
+    pattern.highLow.high > 4 ? 'Consider including more low numbers' : null,
+    pattern.highLow.low > 4 ? 'Consider including more high numbers' : null,
+    pattern.sum < 100 ? 'Consider numbers that would increase the sum' : null,
+    pattern.sum > 200 ? 'Consider numbers that would decrease the sum' : null,
+    pattern.average < 20 ? 'Consider including higher numbers' : null,
+    pattern.average > 30 ? 'Consider including lower numbers' : null,
+    frequencies.some(f => f.status === 'hot') ? 'Consider mixing hot and cold numbers' : null
+  ].filter((rec): rec is string => rec !== null)
 
   return {
     frequencies,

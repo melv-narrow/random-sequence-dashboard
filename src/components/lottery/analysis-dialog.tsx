@@ -33,7 +33,7 @@ interface AnalysisDialogProps {
 
 export function AnalysisDialog({ isOpen, onClose, sequence }: AnalysisDialogProps) {
   const [loading, setLoading] = useState(true)
-  const [analysis, setAnalysis] = useState<ReturnType<typeof analyzeSequence> | null>(null)
+  const [analysis, setAnalysis] = useState<Awaited<ReturnType<typeof analyzeSequence>> | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -99,12 +99,12 @@ export function AnalysisDialog({ isOpen, onClose, sequence }: AnalysisDialogProp
       },
       title: {
         display: true,
-        text: 'Number Frequency Distribution (%)'
+        text: 'Number Frequency Distribution'
       },
       tooltip: {
         callbacks: {
           label: (context: TooltipItem<'bar'>) => {
-            const frequency = context.raw.toFixed(1)
+            const frequency = (context.raw as number).toFixed(1)
             const number = analysis?.frequencies[context.dataIndex]
             return [
               `Frequency: ${frequency}%`,
@@ -120,7 +120,7 @@ export function AnalysisDialog({ isOpen, onClose, sequence }: AnalysisDialogProp
         beginAtZero: true,
         title: {
           display: true,
-          text: 'Frequency (%)'
+          text: 'Frequency'
         }
       },
       x: {
@@ -244,7 +244,7 @@ export function AnalysisDialog({ isOpen, onClose, sequence }: AnalysisDialogProp
                 <div className="flex items-center gap-2">
                   <Percent className="h-4 w-4 text-blue-500" />
                   <span className="font-mono text-lg font-semibold text-blue-600 dark:text-blue-400">
-                    {analysis.winProbability.overall}%
+                    {analysis.winProbability.overall}
                   </span>
                 </div>
               </div>

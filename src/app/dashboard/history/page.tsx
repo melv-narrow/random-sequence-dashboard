@@ -49,7 +49,7 @@ export default function HistoryPage() {
     current: 1,
     pageSize: 10
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [filters, setFilters] = useState({
     dateFrom: '',
     dateTo: '',
@@ -65,9 +65,6 @@ export default function HistoryPage() {
   const [selectedSequence, setSelectedSequence] = useState<number[]>([])
   const [errorDialogOpen, setErrorDialogOpen] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
-
-  const isMounted = useRef(false)
-  const fetchRef = useRef(false)
 
   const getSortIcon = (field: SortField) => {
     if (sortState.field !== field) {
@@ -110,17 +107,20 @@ export default function HistoryPage() {
     })
   }
 
+  const fetchRef = useRef(false)
+  const isMounted = useRef(false)
+  const currentPage = useRef(1)
+
   const fetchSequences = useCallback(async () => {
+    if (!isMounted.current) return
     setLoading(true)
     try {
       const params = new URLSearchParams({
-        page: pagination.current.toString(),
+        page: currentPage.current.toString(),
         dateFrom: filters.dateFrom || '',
         dateTo: filters.dateTo || '',
         sequenceLength: filters.sequenceLength?.toString() || ''
       })
-
-      console.log('Fetching sequences with params:', params.toString())
       
       const response = await fetch(`/api/sequences/history?${params}`)
       const contentType = response.headers.get('content-type')
@@ -133,18 +133,17 @@ export default function HistoryPage() {
       }
 
       const data = await response.json()
-      console.log('Received data:', data)
 
       if (!data.sequences || !Array.isArray(data.sequences)) {
         throw new Error('Invalid response format')
       }
 
       setSequences(data.sequences)
+      // Update pagination info without changing current page
       setPagination(prev => ({
         ...prev,
         total: data.pagination.total,
         pages: data.pagination.pages,
-        current: data.pagination.current,
         pageSize: data.pagination.pageSize
       }))
     } catch (error) {
@@ -159,41 +158,51 @@ export default function HistoryPage() {
     } finally {
       setLoading(false)
     }
-  }, [pagination.current, filters, addToast])
+  }, [filters, addToast])
 
+  // Initial fetch
   useEffect(() => {
-    if (fetchRef.current) return
+    isMounted.current = true
     fetchRef.current = true
-    
     fetchSequences()
+    return () => {
+      isMounted.current = false
+    }
   }, [])
 
+  // Handle pagination changes
   useEffect(() => {
     if (!fetchRef.current) return
-
-    const debounceTimer = setTimeout(() => {
+    currentPage.current = pagination.current
+    const timer = setTimeout(() => {
       fetchSequences()
     }, 300)
+    return () => clearTimeout(timer)
+  }, [pagination.current])
 
-    return () => clearTimeout(debounceTimer)
-  }, [
-    pagination.current,
-    filters.dateFrom,
-    filters.dateTo,
-    filters.sequenceLength
-  ])
+  // Handle filter changes
+  useEffect(() => {
+    if (!fetchRef.current) return
+    currentPage.current = 1 // Reset to first page on filter change
+    setPagination(prev => ({ ...prev, current: 1 }))
+    const timer = setTimeout(() => {
+      fetchSequences()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [filters.dateFrom, filters.dateTo, filters.sequenceLength])
 
   const handlePageChange = (page: number) => {
     setPagination(prev => ({ ...prev, current: page }))
   }
 
-  const handleFilterReset = () => {
+  const resetFilters = () => {
     setFilters({
       dateFrom: '',
       dateTo: '',
       sequenceLength: ''
     })
     setPagination(prev => ({ ...prev, current: 1 }))
+    addToast('Filters have been reset')
   }
 
   const handleDelete = async (sequenceId: string) => {
@@ -442,16 +451,6 @@ export default function HistoryPage() {
       // Reset the date if validation fails
       setFilters(prev => ({ ...prev, dateTo: '' }))
     }
-  }
-
-  const resetFilters = () => {
-    const newFilters = {
-      dateFrom: '',
-      dateTo: '',
-      sequenceLength: ''
-    }
-    setFilters(newFilters)
-    addToast('Filters have been reset')
   }
 
   return (

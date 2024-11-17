@@ -1,4 +1,4 @@
-import { GenerateSequenceParams } from './types'
+import { GenerateSequenceParams } from '@/types'
 import clientPromise from './mongodb'
 import crypto from 'crypto'
 
