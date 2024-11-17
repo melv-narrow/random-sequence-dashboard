@@ -10,7 +10,22 @@ export async function initializeDatabase() {
   // Create users collection if it doesn't exist
   if (!collectionNames.includes('users')) {
     await db.createCollection('users')
-    await db.collection('users').createIndex({ email: 1 }, { unique: true })
+    // Create indexes for user authentication
+    await db.collection('users').createIndexes([
+      { key: { email: 1 }, unique: true },
+      { key: { username: 1 }, unique: true, sparse: true } // sparse index for optional username
+    ])
+  } else {
+    // Update existing users collection with new indexes
+    const existingIndexes = await db.collection('users').listIndexes().toArray()
+    const hasUsernameIndex = existingIndexes.some(index => index.name === 'username_1')
+    
+    if (!hasUsernameIndex) {
+      await db.collection('users').createIndex(
+        { username: 1 },
+        { unique: true, sparse: true }
+      )
+    }
   }
 
   // Create sequences collection if it doesn't exist
@@ -27,4 +42,6 @@ export async function initializeDatabase() {
       { key: { userEmail: 1, date: 1 }, name: 'userEmail_date_1', unique: true }
     ])
   }
+
+  console.log('Database initialization completed')
 }
