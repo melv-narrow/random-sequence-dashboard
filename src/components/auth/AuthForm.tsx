@@ -166,6 +166,20 @@ export function AuthForm({ mode }: AuthFormProps) {
           {mode === 'signup' && (
             <PasswordStrengthIndicator password={formData.password} />
           )}
+          {mode === 'signin' && (
+            <div className="mt-1 text-right">
+              <button
+                type="button"
+                onClick={() => {
+                  // Use window.location to bypass NextAuth's route interception
+                  window.location.href = '/forgot-password'
+                }}
+                className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+              >
+                Forgot your password?
+              </button>
+            </div>
+          )}
         </div>
 
         {mode === 'signup' && (

@@ -3,9 +3,12 @@ import { withAuth } from 'next-auth/middleware'
 export default withAuth({
   callbacks: {
     authorized({ req, token }) {
-      // Only allow signed-in users to access dashboard routes
+      // Only require auth for dashboard routes
       const path = req.nextUrl.pathname
-      return path === '/' || !!token
+      if (path.startsWith('/dashboard')) {
+        return !!token
+      }
+      return true
     }
   }
 })
