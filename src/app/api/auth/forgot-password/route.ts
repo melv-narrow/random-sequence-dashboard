@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { connectToDatabase } from '@/lib/mongodb'
 import { generateToken, hashToken } from '@/lib/token'
+import { sendPasswordResetEmail } from '@/lib/email'
 import { PasswordResetRequest } from '@/types/password-reset'
 
 export async function POST(req: Request) {
@@ -43,9 +44,22 @@ export async function POST(req: Request) {
     // Create reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`
 
-    // TODO: Send email with reset link
-    // For now, just log the URL (we'll implement email sending later)
-    console.log('Reset URL:', resetUrl)
+    // Send password reset email
+    const emailResult = await sendPasswordResetEmail(email, resetUrl)
+
+    if (!emailResult.success) {
+      // In development, still return success if the email was redirected
+      if (process.env.NODE_ENV === 'development' && emailResult.error?.message?.includes('testing emails')) {
+        return NextResponse.json(
+          { message: 'If an account exists with this email, you will receive a password reset link' },
+          { status: 200 }
+        )
+      }
+      return NextResponse.json(
+        { error: 'Failed to send password reset email' },
+        { status: 500 }
+      )
+    }
 
     return NextResponse.json(
       { message: 'If an account exists with this email, you will receive a password reset link' },
