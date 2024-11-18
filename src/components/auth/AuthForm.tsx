@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator'
 
@@ -13,18 +13,25 @@ export function AuthForm({ mode }: AuthFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showTwoFactor, setShowTwoFactor] = useState(false)
   const [formData, setFormData] = useState({
     identifier: '',
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    twoFactorCode: '',
+    isBackupCode: false
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const value = e.target.type === 'checkbox' 
+      ? (e.target as HTMLInputElement).checked 
+      : e.target.value
+    
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: value
     }))
     setError(null)
   }
@@ -59,7 +66,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         // Auto sign in after registration
         const signInResult = await signIn('credentials', {
-          identifier: formData.username, // Use username for initial sign in
+          identifier: formData.username,
           password: formData.password,
           redirect: false
         })
@@ -70,18 +77,53 @@ export function AuthForm({ mode }: AuthFormProps) {
 
         router.push('/dashboard')
       } else {
-        // Sign in
+        if (showTwoFactor) {
+          // Handle 2FA verification
+          const result = await signIn('2fa', {
+            email: formData.identifier,
+            code: formData.twoFactorCode,
+            isBackupCode: formData.isBackupCode,
+            redirect: false,
+            callbackUrl: '/dashboard'
+          })
+
+          if (result?.error) {
+            throw new Error(result.error)
+          }
+          
+          if (result?.url) {
+            router.push(result.url)
+          }
+          return
+        }
+
+        // Normal login flow
         const result = await signIn('credentials', {
           identifier: formData.identifier,
           password: formData.password,
-          redirect: false
+          redirect: false,
+          callbackUrl: '/dashboard'
         })
 
-        if (result?.error) {
-          throw new Error('Invalid username/email or password')
+        if (!result) {
+          throw new Error('Authentication failed')
         }
 
-        router.push('/dashboard')
+        if (result.error) {
+          throw new Error(result.error || 'Invalid credentials')
+        }
+
+        // Check if user needs 2FA
+        const session = await getSession()
+        if (session?.user?.requires2FA) {
+          setShowTwoFactor(true)
+          return
+        }
+
+        // No 2FA required, proceed to dashboard
+        if (result.url) {
+          router.push(result.url)
+        }
       }
     } catch (err: any) {
       console.error('Auth error:', err)
@@ -89,6 +131,74 @@ export function AuthForm({ mode }: AuthFormProps) {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (showTwoFactor) {
+    return (
+      <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 text-sm text-red-500 dark:bg-red-900/50 dark:text-red-400">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              Two-Factor Authentication Code
+            </label>
+            <input
+              id="twoFactorCode"
+              name="twoFactorCode"
+              type="text"
+              required
+              value={formData.twoFactorCode}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white sm:text-sm"
+              placeholder="Enter 6-digit code"
+            />
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+              Enter the verification code from your authenticator app
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="isBackupCode"
+              name="isBackupCode"
+              checked={formData.isBackupCode}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 dark:border-gray-600 dark:bg-gray-700"
+            />
+            <label htmlFor="isBackupCode" className="text-sm text-gray-700 dark:text-gray-300">
+              Use backup code instead
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-indigo-500"
+        >
+          {loading ? 'Verifying...' : 'Verify'}
+        </button>
+
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setShowTwoFactor(false)
+              setFormData(prev => ({ ...prev, twoFactorCode: '', isBackupCode: false }))
+            }}
+            className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300"
+          >
+            Back to Sign In
+          </button>
+        </div>
+      </form>
+    )
   }
 
   return (
