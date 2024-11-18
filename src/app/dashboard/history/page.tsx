@@ -470,34 +470,36 @@ export default function HistoryPage() {
       />
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Sequence History</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           {selectedSequences.size > 0 && (
             <>
               <div className="flex rounded-md shadow-sm">
                 <button
                   onClick={() => exportData(true, 'csv')}
-                  className="flex items-center gap-2 rounded-l-md border-r border-green-700 bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:border-green-400 dark:hover:bg-green-500"
+                  className="flex items-center justify-center gap-1.5 rounded-l-md border-r border-green-700 bg-green-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:border-green-400 dark:hover:bg-green-500 sm:gap-2 sm:px-4 sm:py-2"
                   title="Export as CSV"
                 >
                   <FileText className="h-4 w-4" />
-                  CSV
+                  <span className="sm:hidden">CSV</span>
+                  <span className="hidden sm:inline">Export CSV</span>
                 </button>
                 <button
                   onClick={() => exportData(true, 'excel')}
-                  className="flex items-center gap-2 rounded-r-md bg-green-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:hover:bg-green-500"
+                  className="flex items-center justify-center gap-1.5 rounded-r-md bg-green-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-50 dark:hover:bg-green-500 sm:gap-2 sm:px-4 sm:py-2"
                   title="Export as Excel"
                 >
                   <FileSpreadsheet className="h-4 w-4" />
-                  Excel
+                  <span className="sm:hidden">XLS</span>
+                  <span className="hidden sm:inline">Export Excel</span>
                 </button>
               </div>
               <button
                 onClick={() => setShowDeleteDialog(true)}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:hover:bg-red-500"
+                className="flex items-center justify-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:hover:bg-red-500 sm:gap-2 sm:px-4 sm:py-2"
               >
                 <Trash2 className="h-4 w-4" />
-                Delete ({selectedSequences.size})
+                <span>Delete ({selectedSequences.size})</span>
               </button>
             </>
           )}
@@ -505,20 +507,22 @@ export default function HistoryPage() {
             <button
               onClick={() => exportData(false, 'csv')}
               disabled={sequences.length === 0}
-              className="flex items-center gap-2 rounded-l-md border-r border-blue-700 bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:border-blue-400 dark:hover:bg-blue-500"
+              className="flex items-center justify-center gap-1.5 rounded-l-md border-r border-blue-700 bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:border-blue-400 dark:hover:bg-blue-500 sm:gap-2 sm:px-4 sm:py-2"
               title="Export all as CSV"
             >
               <FileText className="h-4 w-4" />
-              CSV
+              <span className="sm:hidden">CSV</span>
+              <span className="hidden sm:inline">Export All CSV</span>
             </button>
             <button
               onClick={() => exportData(false, 'excel')}
               disabled={sequences.length === 0}
-              className="flex items-center gap-2 rounded-r-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:hover:bg-blue-500"
+              className="flex items-center justify-center gap-1.5 rounded-r-md bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50 dark:hover:bg-blue-500 sm:gap-2 sm:px-4 sm:py-2"
               title="Export all as Excel"
             >
               <FileSpreadsheet className="h-4 w-4" />
-              Excel
+              <span className="sm:hidden">XLS</span>
+              <span className="hidden sm:inline">Export All Excel</span>
             </button>
           </div>
         </div>
@@ -593,118 +597,124 @@ export default function HistoryPage() {
         </div>
       ) : sequences.length > 0 ? (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-800">
-                <tr>
-                  <th className="w-8 px-6 py-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedSequences.size === sequences.length}
-                      onChange={toggleSelectAll}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
-                    />
-                  </th>
-                  <th 
-                    onClick={() => handleSort('date')}
-                    className="group cursor-pointer px-6 py-3 text-left"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Date
-                      {getSortIcon('date')}
-                    </div>
-                  </th>
-                  <th 
-                    onClick={() => handleSort('length')}
-                    className="group cursor-pointer px-6 py-3 text-left"
-                  >
-                    <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                      Length
-                      {getSortIcon('length')}
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                        Sequence
-                      </span>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleSort('min')}
-                          className="group flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                          title="Sort by minimum value"
-                        >
-                          Min {getSortIcon('min')}
-                        </button>
-                        <button
-                          onClick={() => handleSort('max')}
-                          className="group flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                          title="Sort by maximum value"
-                        >
-                          Max {getSortIcon('max')}
-                        </button>
-                        <button
-                          onClick={() => handleSort('average')}
-                          className="group flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
-                          title="Sort by average value"
-                        >
-                          Avg {getSortIcon('average')}
-                        </button>
-                      </div>
-                    </div>
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
-                {sortSequences(sequences).map((sequence) => (
-                  <tr key={sequence._id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="w-8 px-6 py-4">
+          <div className="relative overflow-hidden">
+            <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead className="bg-gray-50 dark:bg-gray-800">
+                  <tr>
+                    <th className="sticky left-0 z-10 w-8 bg-gray-50 px-2 py-3 dark:bg-gray-800 sm:px-6">
                       <input
                         type="checkbox"
-                        checked={selectedSequences.has(sequence._id)}
-                        onChange={() => toggleSelect(sequence._id)}
+                        checked={selectedSequences.size === sequences.length}
+                        onChange={toggleSelectAll}
                         className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
                       />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {formatDate(sequence.createdAt)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      {sequence.metadata.sequenceLength}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-                      <SequenceDisplay sequence={sequence.numbers} />
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-right text-sm">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleAnalyze(sequence.numbers)}
-                          className="flex items-center gap-2 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-                        >
-                          <ChartBar className="h-4 w-4" />
-                          Analyze
-                        </button>
-                        <button
-                          onClick={() => handleDelete(sequence._id)}
-                          disabled={deleting === sequence._id}
-                          className="flex items-center gap-2 rounded-md bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete
-                        </button>
+                    </th>
+                    <th 
+                      onClick={() => handleSort('date')}
+                      className="group w-32 cursor-pointer px-2 py-3 text-left sm:w-auto sm:px-6"
+                    >
+                      <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        <span className="min-w-[40px]">Date</span>
+                        {getSortIcon('date')}
                       </div>
-                    </td>
+                    </th>
+                    <th 
+                      onClick={() => handleSort('length')}
+                      className="group w-20 cursor-pointer px-2 py-3 text-left sm:w-auto sm:px-6"
+                    >
+                      <div className="flex items-center gap-1 sm:gap-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                        <span className="min-w-[40px]">Len</span>
+                        {getSortIcon('length')}
+                      </div>
+                    </th>
+                    <th className="px-2 py-3 text-left sm:px-6">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <span className="mb-2 text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 sm:mb-0">
+                          Sequence
+                        </span>
+                        <div className="flex flex-wrap gap-1 sm:gap-2">
+                          <button
+                            onClick={() => handleSort('min')}
+                            className="group flex items-center gap-1 rounded px-1.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 sm:px-2"
+                            title="Sort by minimum value"
+                          >
+                            Min {getSortIcon('min')}
+                          </button>
+                          <button
+                            onClick={() => handleSort('max')}
+                            className="group flex items-center gap-1 rounded px-1.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 sm:px-2"
+                            title="Sort by maximum value"
+                          >
+                            Max {getSortIcon('max')}
+                          </button>
+                          <button
+                            onClick={() => handleSort('average')}
+                            className="group flex items-center gap-1 rounded px-1.5 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 sm:px-2"
+                            title="Sort by average value"
+                          >
+                            Avg {getSortIcon('average')}
+                          </button>
+                        </div>
+                      </div>
+                    </th>
+                    <th className="w-24 px-2 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 sm:w-auto sm:px-6">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-800">
+                  {sortSequences(sequences).map((sequence) => (
+                    <tr key={sequence._id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+                      <td className="sticky left-0 z-10 w-8 bg-white px-2 py-4 dark:bg-gray-800 sm:px-6">
+                        <input
+                          type="checkbox"
+                          checked={selectedSequences.has(sequence._id)}
+                          onChange={() => toggleSelect(sequence._id)}
+                          className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700"
+                        />
+                      </td>
+                      <td className="w-32 whitespace-nowrap px-2 py-4 text-sm text-gray-900 dark:text-gray-100 sm:w-auto sm:px-6">
+                        {formatDate(sequence.createdAt)}
+                      </td>
+                      <td className="w-20 whitespace-nowrap px-2 py-4 text-sm text-gray-900 dark:text-gray-100 sm:w-auto sm:px-6">
+                        {sequence.metadata.sequenceLength}
+                      </td>
+                      <td className="px-2 py-4 text-sm text-gray-900 dark:text-gray-100 sm:px-6">
+                        <div className="max-w-[200px] overflow-x-auto sm:max-w-none">
+                          <SequenceDisplay sequence={sequence.numbers} />
+                        </div>
+                      </td>
+                      <td className="w-24 whitespace-nowrap px-2 py-4 text-right text-sm sm:w-auto sm:px-6">
+                        <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center sm:justify-end">
+                          <button
+                            onClick={() => handleAnalyze(sequence.numbers)}
+                            className="flex w-full items-center justify-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 sm:w-auto sm:gap-2 sm:px-3 sm:py-1.5"
+                          >
+                            <ChartBar className="h-4 w-4 sm:h-4 sm:w-4" />
+                            <span className="sm:hidden">Analyze</span>
+                            <span className="hidden sm:inline">Analyze</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(sequence._id)}
+                            disabled={deleting === sequence._id}
+                            className="flex w-full items-center justify-center gap-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 sm:w-auto sm:gap-2 sm:px-3 sm:py-1.5"
+                          >
+                            <Trash2 className="h-4 w-4 sm:h-4 sm:w-4" />
+                            <span className="sm:hidden">Delete</span>
+                            <span className="hidden sm:inline">Delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+          <div className="mt-4 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-gray-600 dark:text-gray-400 sm:text-sm">
               {sequences.length > 0 && (
                 <>
                   Showing {((pagination.current - 1) * pagination.pageSize) + 1} to{' '}
@@ -713,12 +723,12 @@ export default function HistoryPage() {
                 </>
               )}
             </div>
-            <div className="space-x-2">
+            <div className="flex flex-wrap gap-1 sm:gap-2">
               {Array.from({ length: Math.max(0, pagination.pages) }).map((_, i) => (
                 <button
                   key={i + 1}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 text-sm rounded-md ${
+                  className={`min-w-[32px] px-2 py-1 text-xs rounded-md sm:min-w-[40px] sm:px-3 sm:text-sm ${
                     pagination.current === i + 1
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
