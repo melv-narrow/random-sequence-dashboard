@@ -6,6 +6,7 @@ declare module 'next-auth' {
     user: {
       id: string
       username?: string | null
+      requires2FA?: boolean
     } & DefaultSession['user']
   }
 

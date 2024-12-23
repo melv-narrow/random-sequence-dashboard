@@ -41,42 +41,70 @@ export function PasswordStrengthIndicator({ password }: PasswordStrengthIndicato
 
   // Determine color based on score
   const getColor = () => {
-    if (score <= 1) return 'bg-red-500'
-    if (score === 2) return 'bg-orange-500'
-    if (score === 3) return 'bg-yellow-500'
-    if (score === 4) return 'bg-green-500'
-    return 'bg-emerald-500'
+    if (score <= 1) return 'bg-red-500 dark:bg-red-400'
+    if (score === 2) return 'bg-orange-500 dark:bg-orange-400'
+    if (score === 3) return 'bg-yellow-500 dark:bg-yellow-400'
+    if (score === 4) return 'bg-green-500 dark:bg-green-400'
+    return 'bg-emerald-500 dark:bg-emerald-400'
+  }
+
+  const getTextColor = () => {
+    if (score <= 1) return 'text-red-500 dark:text-red-400'
+    if (score === 2) return 'text-orange-500 dark:text-orange-400'
+    if (score === 3) return 'text-yellow-500 dark:text-yellow-400'
+    if (score === 4) return 'text-green-500 dark:text-green-400'
+    return 'text-emerald-500 dark:text-emerald-400'
   }
 
   // Only show if password is not empty
   if (!password) return null
 
   return (
-    <div className="mt-1 space-y-1">
-      <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+    <div className="mt-2 space-y-2 animate-fade-in">
+      <div className="relative h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
         <div
-          className={`h-full transition-all duration-300 ${getColor()}`}
-          style={{ width: `${strengthPercentage}%` }}
+          className={`h-full transition-all duration-500 ease-out transform origin-left ${getColor()}`}
+          style={{ width: `${strengthPercentage}%`, transform: `scaleX(${password ? 1 : 0})` }}
         />
       </div>
-      <p className={`text-xs ${getColor().replace('bg-', 'text-')}`}>
-        Password Strength: {feedback}
-      </p>
-      <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1 mt-2">
-        <li className={password.length >= 8 ? 'text-green-500' : ''}>
-          • At least 8 characters
+      <div className="flex items-center justify-between">
+        <p className={`text-sm font-medium transition-colors duration-200 ${getTextColor()}`}>
+          {feedback}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {score}/{maxScore} criteria met
+        </p>
+      </div>
+      <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-1.5 mt-2">
+        <li className={`flex items-center space-x-2 transition-colors duration-200 ${password.length >= 8 ? getTextColor() : ''}`}>
+          <svg className={`w-4 h-4 transition-transform duration-200 ${password.length >= 8 ? 'scale-100' : 'scale-0'}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>At least 8 characters</span>
         </li>
-        <li className={/[A-Z]/.test(password) ? 'text-green-500' : ''}>
-          • At least one uppercase letter
+        <li className={`flex items-center space-x-2 transition-colors duration-200 ${/[A-Z]/.test(password) ? getTextColor() : ''}`}>
+          <svg className={`w-4 h-4 transition-transform duration-200 ${/[A-Z]/.test(password) ? 'scale-100' : 'scale-0'}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>One uppercase letter</span>
         </li>
-        <li className={/[a-z]/.test(password) ? 'text-green-500' : ''}>
-          • At least one lowercase letter
+        <li className={`flex items-center space-x-2 transition-colors duration-200 ${/[a-z]/.test(password) ? getTextColor() : ''}`}>
+          <svg className={`w-4 h-4 transition-transform duration-200 ${/[a-z]/.test(password) ? 'scale-100' : 'scale-0'}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>One lowercase letter</span>
         </li>
-        <li className={/[0-9]/.test(password) ? 'text-green-500' : ''}>
-          • At least one number
+        <li className={`flex items-center space-x-2 transition-colors duration-200 ${/[0-9]/.test(password) ? getTextColor() : ''}`}>
+          <svg className={`w-4 h-4 transition-transform duration-200 ${/[0-9]/.test(password) ? 'scale-100' : 'scale-0'}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>One number</span>
         </li>
-        <li className={/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'text-green-500' : ''}>
-          • At least one special character
+        <li className={`flex items-center space-x-2 transition-colors duration-200 ${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? getTextColor() : ''}`}>
+          <svg className={`w-4 h-4 transition-transform duration-200 ${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'scale-100' : 'scale-0'}`} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          <span>One special character</span>
         </li>
       </ul>
     </div>

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 import { Menu, X, Home, PlusCircle, History, Settings, Book, UserCircle, LogOut } from 'lucide-react'
+import Image from 'next/image'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -56,7 +57,27 @@ export default function DashboardLayout({
         <div className="absolute inset-y-0 left-0 w-full max-w-xs flex flex-col bg-white shadow-xl transition-transform dark:bg-gray-800">
           {/* Header */}
           <div className="flex h-16 items-center justify-between px-6">
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">Menu</span>
+            <div className="flex items-center gap-2">
+              <div className="relative h-8 w-8">
+                <Image
+                  src="/logo-light.png"
+                  alt="Logo Light"
+                  className="block dark:hidden"
+                  fill
+                  sizes="32px"
+                />
+                <Image
+                  src="/logo-dark.png"
+                  alt="Logo Dark"
+                  className="hidden dark:block"
+                  fill
+                  sizes="32px"
+                />
+              </div>
+              <span className="text-xl font-semibold text-gray-900 dark:text-white">
+                Random Sequence
+              </span>
+            </div>
             <button
               type="button"
               className="rounded-md text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
@@ -119,9 +140,27 @@ export default function DashboardLayout({
         <div className="flex min-h-0 flex-1 flex-col border-r bg-white dark:border-gray-800 dark:bg-gray-800">
           <div className="flex flex-1 flex-col overflow-y-auto pt-5">
             <div className="flex flex-shrink-0 items-center justify-between px-4">
-              <span className="text-xl font-semibold text-gray-900 dark:text-white">
-                Random Sequence
-              </span>
+              <div className="flex items-center gap-2">
+                <div className="relative h-8 w-8">
+                  <Image
+                    src="/logo-light.png"
+                    alt="Logo Light"
+                    className="block dark:hidden"
+                    fill
+                    sizes="32px"
+                  />
+                  <Image
+                    src="/logo-dark.png"
+                    alt="Logo Dark"
+                    className="hidden dark:block"
+                    fill
+                    sizes="32px"
+                  />
+                </div>
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Random Sequence
+                </span>
+              </div>
             </div>
             <div className="mt-5 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center px-4 py-3">
